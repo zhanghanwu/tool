@@ -1,0 +1,296 @@
+如基本的单向加密算法： 
+•BASE64 严格地说，属于编码格式，而非加密算法 
+•MD5(Message Digest algorithm 5，信息摘要算法) 
+•SHA(Secure Hash Algorithm，安全散列算法) 
+•HMAC(Hash Message Authentication Code，散列消息鉴别码) 
+
+    复杂的对称加密（DES、PBE）、非对称加密算法： 
+•DES(Data Encryption Standard，数据加密算法) 
+•PBE(Password-based encryption，基于密码验证) 
+•RSA(算法的名字以发明者的名字命名：Ron Rivest, AdiShamir 和Leonard Adleman) 
+•DH(Diffie-Hellman算法，密钥一致协议) 
+•DSA(Digital Signature Algorithm，数字签名) 
+•ECC(Elliptic Curves Cryptography，椭圆曲线密码编码学)
+
+
+MD5、SHA、HMAC这三种加密算法，可谓是非可逆加密，就是不可解密的加密方法。我们通常只把他们作为加密的基础。单纯的以上三种的加密并不可靠。
+
+BASE64
+按照RFC2045的定义，Base64被定义为：Base64内容传送编码被设计用来把任意序列的8位字节描述为一种不易被人直接识别的形式。
+（The Base64 Content-Transfer-Encoding is designed to represent arbitrary sequences of octets in a form that need not be humanly readable.）
+ 常见于邮件、http加密，截取http信息，你就会发现登录操作的用户名、密码字段通过BASE64加密的。
+ 主要就是BASE64Encoder、BASE64Decoder两个类，我们只需要知道使用对应的方法即可。另，BASE加密后产生的字节位数是8的倍数，如果不够位数以=符号填充。
+BASE64Encoder和BASE64Decoder是非官方JDK实现类。虽然可以在JDK里能找到并使用，但是在API里查不到。JRE 中 sun 和 com.sun 开头包的类都是未被文档化的，
+他们属于 java, javax 类库的基础，其中的实现大多数与底层平台有关，一般来说是不推荐使用的。
+
+ MD5 
+MD5 -- message-digest algorithm 5 （信息-摘要算法）缩写，广泛用于加密和解密技术，常用于文件校验。校验？
+不管文件多大，经过MD5后都能生成唯一的MD5值。好比现在的ISO校验，都是MD5校验。怎么用？当然是把ISO经过MD5后产生MD5的值。
+一般下载linux-ISO的朋友都见过下载链接旁边放着MD5的串。就是用来验证文件是否一致的。
+通常我们不直接使用上述MD5加密。通常将MD5产生的字节数组交给BASE64再加密一把，得到相应的字符串。 
+
+SHA 
+SHA(Secure Hash Algorithm，安全散列算法），数字签名等密码学应用中重要的工具，被广泛地应用于电子商务等信息安全领域。
+虽然，SHA与MD5通过碰撞法都被破解了， 但是SHA仍然是公认的安全加密算法，较之MD5更为安全。
+
+HMAC 
+HMAC(Hash Message Authentication Code，散列消息鉴别码，基于密钥的Hash算法的认证协议。
+消息鉴别码实现鉴别的原理是，用公开函数和密钥产生一个固定长度的值作为认证标识，用这个标识鉴别消息的完整性。
+使用一个密钥生成一个固定大小的小数据块，即MAC，并将其加入到消息中，然后传输。接收方利用与发送方共享的密钥进行鉴别认证等。
+
+BASE64的加密解密是双向的，可以求反解。 
+    MD5、SHA以及HMAC是单向加密，任何数据加密后只会产生唯一的一个加密串，通常用来校验数据在传输过程中是否被修改。
+    其中HMAC算法有一个密钥，增强了数据传输过程中的安全性，强化了算法外的不可控因素。
+    单向加密的用途主要是为了校验数据在传输过程中是否被修改。 
+
+对称加密算法DES&AES
+DES 
+DES-Data Encryption Standard,即数据加密算法。是IBM公司于1975年研究成功并公开发表的。
+DES算法的入口参数有三个:Key、Data、Mode。其中Key为8个字节共64位,是DES算法的工作密钥;
+Data也为8个字节64位,是要被加密或被解密的数据;Mode为DES的工作方式,有两种:加密或解密。
+ 　　DES算法把64位的明文输入块变为64位的密文输出块,它所使用的密钥也是64位。
+ 这是一种简单的加密解密方式，只有一个密钥。 
+    其实DES有很多同胞兄弟，如DESede(TripleDES)、AES、Blowfish、RC2、RC4(ARCFOUR)。
+    这里就不过多阐述了，大同小异，只要换掉ALGORITHM换成对应的值，同时做一个代码替换
+    SecretKey secretKey = new SecretKeySpec(key, ALGORITHM);就可以了，此外就是密钥长度不同了。
+
+除了DES，我们还知道有DESede(TripleDES,就是3DES)、AES、Blowfish、RC2、RC4(ARCFOUR)等多种对称加密方式，
+其实现方式大同小异，这里介绍对称加密的另一个算法——PBE
+PBE 
+    PBE——Password-based encryption（基于密码加密）。其特点在于口令由用户自己掌管，不借助任何物理媒体；
+    采用随机数（这里我们叫做盐）杂凑多重加密等方法保证数据的安全性。是一种简便的加密方式。
+    
+后续我们会介绍非对称加密算法，如RSA、DSA、DH、ECC等。
+非对称加密算法——RSA 
+    这种算法1978年就出现了，它是第一个既能用于数据加密也能用于数字签名的算法。它易于理解和操作，也很流行。算法的名字以发明者的名字命名：Ron Rivest, AdiShamir 和Leonard Adleman。
+     这种加密算法的特点主要是密钥的变化，上文我们看到DES只有一个密钥。相当于只有一把钥匙，如果这把钥匙丢了，数据也就不安全了。RSA同时有两把钥匙，公钥与私钥。同时支持数字签名。数字签名的意义在于，对传输过来的数据进行校验。确保数据在传输工程中不被修改。
+ 
+流程分析： 
+1.甲方构建密钥对儿，将公钥公布给乙方，将私钥保留。 
+2.甲方使用私钥加密数据，然后用私钥对加密后的数据签名，发送给乙方签名以及加密后的数据；乙方使用公钥、签名来验证待解密数据是否有效，如果有效使用公钥对数据解密。
+ 3.乙方使用公钥加密数据，向甲方发送经过加密后的数据；甲方获得加密数据，通过私钥解密。 
+
+数字信封 
+　　数字信封用加密技术来保证只有特定的收信人才能阅读信的内容。 
+流程： 
+    信息发送方采用对称密钥来加密信息，然后再用接收方的公钥来加密此对称密钥（这部分称为数字信封），再将它和信息一起发送给接收方；
+    接收方先用相应的私钥打开数字信封，得到对称密钥，然后使用对称密钥再解开信息。
+
+DH 
+Diffie-Hellman算法(D-H算法)，密钥一致协议。是由公开密钥密码体制的奠基人Diffie和Hellman所提出的一种思想。
+简单的说就是允许两名用户在公开媒体上交换信息以生成"一致"的、可以共享的密钥。换句话说，就是由甲方产出一对密钥（公钥、私钥），
+乙方依照甲方公钥产生乙方密钥对（公钥、私钥）。以此为基线，作为数据传输保密基础，同时双方使用同一种对称加密算法构建本地密钥（SecretKey）对数据加密。
+这样，在互通了本地密钥（SecretKey）算法后，甲乙双方公开自己的公钥，使用对方的公钥和刚才产生的私钥加密数据，同时可以使用对方的公钥和自己的私钥对数据解密。
+不单单是甲乙双方两方，可以扩展为多方共享数据通讯，这样就完成了网络交互数据的安全通讯！该算法源于中国的同余定理——中国馀数定理。 
+ 
+流程分析： 
+1.甲方构建密钥对儿，将公钥公布给乙方，将私钥保留；双方约定数据加密算法；乙方通过甲方公钥构建密钥对儿，将公钥公布给甲方，将私钥保留。 
+2.甲方使用私钥、乙方公钥、约定数据加密算法构建本地密钥，然后通过本地密钥加密数据，发送给乙方加密后的数据；乙方使用私钥、甲方公钥、约定数据加密算法构建本地密钥，然后通过本地密钥对数据解密。
+ 3.乙方使用私钥、甲方公钥、约定数据加密算法构建本地密钥，然后通过本地密钥加密数据，发送给甲方加密后的数据；甲方使用私钥、乙方公钥、约定数据加密算法构建本地密钥，然后通过本地密钥对数据解密。
+ 
+ DSA 
+DSA-Digital Signature Algorithm 是Schnorr和ElGamal签名算法的变种，
+被美国NIST作为DSS(DigitalSignature Standard)。简单的说，这是一种更高级的验证方式，用作数字签名。
+不单单只有公钥、私钥，还有数字签名。私钥加密生成数字签名，公钥验证数据及签名。如果数据和签名不匹配则认为验证失败！
+数字签名的作用就是校验数据在传输过程中不被修改。数字签名，是单向加密的升级！
+
+非对称加密算法最高级ECC
+ECC-Elliptic Curves Cryptography，椭圆曲线密码编码学，是目前已知的公钥体制中，对每比特所提供加密强度最高的一种体制。
+在软件注册保护方面起到很大的作用，一般的序列号通常由该算法产生。
+ 当我开始整理《Java加密技术（二）》的时候，我就已经在开始研究ECC了，
+但是关于Java实现ECC算法的资料实在是太少了，无论是国内还是国外的资料，无论是官方还是非官方的解释，  最终只有一种答案——ECC算法在jdk1.5后加入支持，
+目前仅仅只能完成密钥的生成与解析。 如果想要获得ECC算法实现，需要调用硬件完成加密/解密（ECC算法相当耗费资源， 如果单纯使用CPU进行加密/解密，效率低下），
+涉及到Java Card领域，PKCS#11。 其实，PKCS#11配置很简单，但缺乏硬件设备，无法尝试！
+
+
+数字证书 
+在构建Java代码实现前，我们需要完成证书的制作。 
+1.生成keyStroe文件 
+在命令行下执行以下命令： 
+
+Shell代码  
+1.keytool -genkey -validity 36000 -alias www.zlex.org -keyalg RSA -keystore d:\zlex.keystore  
+ 
+
+其中 
+-genkey表示生成密钥 
+-validity指定证书有效期，这里是36000天 
+-alias指定别名，这里是www.zlex.org 
+-keyalg指定算法，这里是RSA
+-keystore指定存储位置，这里是d:\zlex.keystore 
+
+在这里我使用的密码为 123456 
+
+控制台输出： 
+
+
+
+Console代码  
+输入keystore密码：  
+再次输入新密码:  
+您的名字与姓氏是什么？  
+  [Unknown]：  www.zlex.org  
+您的组织单位名称是什么？  
+  [Unknown]：  zlex  
+您的组织名称是什么？  
+  [Unknown]：  zlex  
+您所在的城市或区域名称是什么？  
+  [Unknown]：  BJ  
+您所在的州或省份名称是什么？  
+  [Unknown]：  BJ  
+该单位的两字母国家代码是什么  
+  [Unknown]：  CN  
+CN=www.zlex.org, OU=zlex, O=zlex, L=BJ, ST=BJ, C=CN 正确吗？  
+  [否]：  Y  
+  
+输入<tomcat>的主密码  
+        （如果和 keystore 密码相同，按回车）：  
+再次输入新密码:  
+ 
+这时，在D盘下会生成一个zlex.keystore的文件。
+
+2.生成自签名证书 
+光有keyStore文件是不够的，还需要证书文件，证书才是直接提供给外界使用的公钥凭证。 
+导出证书： 
+
+
+
+Shell代码  
+1.keytool -export -keystore d:\zlex.keystore -alias www.zlex.org -file d:\zlex.cer -rfc  
+ 
+
+其中 
+-export指定为导出操作 
+-keystore指定keystore文件
+-alias指定导出keystore文件中的别名
+-file指向导出路径 
+-rfc以文本格式输出，也就是以BASE64编码输出 
+这里的密码是 123456 
+
+控制台输出： 
+
+
+
+Console代码  
+1.输入keystore密码：  
+2.保存在文件中的认证 <d:\zlex.cer>  
+ 
+
+当然，使用方是需要导入证书的！ 
+可以通过自签名证书完成CAS单点登录系统的构建！
+ 
+Ok，准备工作完成，开始Java实现！ 
+
+同样，我们可以对代码做签名——代码签名！
+通过工具JarSigner可以完成代码签名。 
+这里我们对tools.jar做代码签名，命令如下： 
+
+
+
+Shell代码  
+1.jarsigner -storetype jks -keystore zlex.keystore -verbose tools.jar www.zlex.org  
+ 
+控制台输出： 
+
+
+
+Console代码  
+1.输入密钥库的口令短语：  
+2. 正在更新： META-INF/WWW_ZLEX.SF  
+3. 正在更新： META-INF/WWW_ZLEX.RSA  
+4.  正在签名： org/zlex/security/Security.class  
+5.  正在签名： org/zlex/tool/Main$1.class  
+6.  正在签名： org/zlex/tool/Main$2.class  
+7.  正在签名： org/zlex/tool/Main.class  
+8.  
+9.警告：  
+10.签名者证书将在六个月内过期。  
+ 
+
+此时，我们可以对签名后的jar做验证！
+验证tools.jar，命令如下： 
+
+
+
+Shell代码  
+1.jarsigner -verify -verbose -certs tools.jar  
+ 
+控制台输出： 
+
+
+
+Console代码  
+1.         402 Sat Jun 20 16:25:14 CST 2009 META-INF/MANIFEST.MF  
+2.         532 Sat Jun 20 16:25:14 CST 2009 META-INF/WWW_ZLEX.SF  
+3.         889 Sat Jun 20 16:25:14 CST 2009 META-INF/WWW_ZLEX.RSA  
+4.sm       590 Wed Dec 10 13:03:42 CST 2008 org/zlex/security/Security.class  
+5.  
+6.      X.509, CN=www.zlex.org, OU=zlex, O=zlex, L=BJ, ST=BJ, C=CN  
+7.      [证书将在 09-9-18 下午3:27 到期]  
+8.  
+9.sm       705 Tue Dec 16 18:00:56 CST 2008 org/zlex/tool/Main$1.class  
+10.  
+11.      X.509, CN=www.zlex.org, OU=zlex, O=zlex, L=BJ, ST=BJ, C=CN  
+12.      [证书将在 09-9-18 下午3:27 到期]  
+13.  
+14.sm       779 Tue Dec 16 18:00:56 CST 2008 org/zlex/tool/Main$2.class  
+15.  
+16.      X.509, CN=www.zlex.org, OU=zlex, O=zlex, L=BJ, ST=BJ, C=CN  
+17.      [证书将在 09-9-18 下午3:27 到期]  
+18.  
+19.sm     12672 Tue Dec 16 18:00:56 CST 2008 org/zlex/tool/Main.class  
+20.  
+21.      X.509, CN=www.zlex.org, OU=zlex, O=zlex, L=BJ, ST=BJ, C=CN  
+22.      [证书将在 09-9-18 下午3:27 到期]  
+23.  
+24.  
+25.  s = 已验证签名  
+26.  m = 在清单中列出条目  
+27.  k = 在密钥库中至少找到了一个证书  
+28.  i = 在身份作用域内至少找到了一个证书  
+29.  
+30.jar 已验证。  
+31.  
+32.警告：  
+33.此 jar 包含签名者证书将在六个月内过期的条目。  
+
+代码签名认证的用途主要是对发布的软件做验证，支持 Sun Java .jar (Java Applet) 文件(J2SE)和 J2ME MIDlet Suite 文件。 
+
+
+现在我们深度了解一下现有的安全网络通信——SSL。 
+    我们需要构建一个由CA机构签发的有效证书，这里我们使用上文中生成的自签名证书zlex.cer 
+    这里，我们将证书导入到我们的密钥库。 
+
+
+
+初探SSL 
+Shell代码  
+1.keytool -import -alias www.zlex.org -file d:/zlex.cer -keystore d:/zlex.keystore  
+ 
+
+其中 
+-import表示导入
+-alias指定别名，这里是www.zlex.org
+-file指定算法，这里是d:/zlex.cer
+-keystore指定存储位置，这里是d:/zlex.keystore 
+在这里我使用的密码为654321
+ 
+控制台输出： 
+
+
+
+Console代码  
+1.输入keystore密码：  
+2.再次输入新密码:  
+3.所有者:CN=www.zlex.org, OU=zlex, O=zlex, L=BJ, ST=BJ, C=CN  
+4.签发人:CN=www.zlex.org, OU=zlex, O=zlex, L=BJ, ST=BJ, C=CN  
+5.序列号:4a1e48df  
+6.有效期: Thu May 28 16:18:39 CST 2009 至Wed Aug 26 16:18:39 CST 2009  
+7.证书指纹:  
+8.         MD5:19:CA:E6:36:E2:DF:AD:96:31:97:2F:A9:AD:FC:37:6A  
+9.         SHA1:49:88:30:59:29:45:F1:69:CA:97:A9:6D:8A:CF:08:D2:C3:D5:C0:C4  
+10.         签名算法名称:SHA1withRSA  
+11.         版本: 3  
+12.信任这个认证？ [否]：  y  
+13.认证已添加至keystore中 
+
